@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.service.letinvr.letinservice">
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <application
+        android:name=".app.APP"
+        android:allowBackup="true"
+        android:icon="@mipmap/letin_logo"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/letin_logo"
+        android:supportsRtl="true"
+        android:persistent="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".ui.MainActivity"
+            android:screenOrientation="portrait">
+            <intent-filter
+
+                >
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!--进程守护Service-->
+        <service android:name="com.service.letinvr.letinservice.service.ServiceOne"
+            android:exported="true"
+            android:process=":remote"
+            >
+
+        </service>
+        <!--进程守护Service-->
+        <service android:name="com.service.letinvr.letinservice.service.ServiceTwo"
+            android:exported="true"
+            android:process=":remote">
+
+        </service>
+
+        <!--接收开机或者开机声音广播-->
+        <receiver android:name="com.service.letinvr.letinservice.broadcast.ServiceBroadcastReceiver"
+            android:exported="true"
+            android:priority="1000">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
+
+            </intent-filter>
+
+        </receiver>
+
+
+
+    </application>
+
+</manifest>
