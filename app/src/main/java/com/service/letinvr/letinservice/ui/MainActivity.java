@@ -23,6 +23,36 @@ import com.service.letinvr.letinservice.view.CustomVideoView;
 
 import java.util.ArrayList;
 
+//
+//                    .::::.
+//                  .::::::::.
+//                 :::::::::::  FUCK YOU
+//             ..:::::::::::'
+//           '::::::::::::'
+//             .::::::::::
+//        '::::::::::::::..
+//             ..::::::::::::.
+//           ``::::::::::::::::
+//            ::::``:::::::::'        .:::.
+//           ::::'   ':::::'       .::::::::.
+//         .::::'      ::::     .:::::::'::::.
+//        .:::'       :::::  .:::::::::' ':::::.
+//       .::'        :::::.:::::::::'      ':::::.
+//      .::'         ::::::::::::::'         ``::::.
+//  ...:::           ::::::::::::'              ``::.
+// ```` ':.          ':::::::::'                  ::::..
+//                    '.:::::'                    ':'````..
+/***********************************************************
+ *                                                         *
+ * You may think you know what the following code does.    *
+ * But you dont. Trust me.                                 *
+ * Fiddle with it, and youll spend many a sleepless        *
+ * night cursing the moment you thought youd be clever     *
+ * enough to "optimize" the code below.                    *
+ * Now close this file and go play with something else.    *
+ *                                                         *
+ ***********************************************************/
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -35,22 +65,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //隐藏状态栏
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow()
-                    .getDecorView()
-                    .setSystemUiVisibility(
-                            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                    | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
             StatusBarUtil.setStatusBarColor(this, R.color.transparent);
         }
+
         getReceWindow();//透明白色字体
+
         setContentView(R.layout.activity_main);
+
         videoView = findViewById(R.id.mCustomVideoVide);
         mImg = findViewById(R.id.mImg);
         mTx = findViewById(R.id.mTx);
         initView();//初始化View
         initService();//开启服务
         try {
-            mTx.setText(getVersionName(this));
+            mTx.setText("V"+getVersionName(this));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -60,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, R.string.end, Toast.LENGTH_SHORT).show();
             }
         });
-
 
     }
 

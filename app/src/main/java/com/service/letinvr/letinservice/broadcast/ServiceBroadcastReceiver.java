@@ -23,6 +23,8 @@ public class ServiceBroadcastReceiver extends BroadcastReceiver {
         String action = intent.getAction();//获取开机action
         SLog.e("action："+action);
 
+
+
         if (action.equals(ACTION)||action.equals(NOISY_ACTION)){
             Intent i = context.getPackageManager().getLaunchIntentForPackage(packName);
             if (i != null) {

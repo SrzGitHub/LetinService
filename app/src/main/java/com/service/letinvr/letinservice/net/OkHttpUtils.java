@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.service.letinvr.letinservice.app.APP;
-import com.service.letinvr.letinservice.net.callback.MyNetWorkCallback;
+import com.service.letinvr.letinservice.net.callback.LetinNetWorkCallback;
 
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
@@ -18,29 +18,59 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.Interceptor;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
-/**
- * 基于OKhttp发送网络请求
- * Created by xingge on 2017/9/27.
- */
+//
+//                    .::::.
+//                  .::::::::.
+//                 :::::::::::  FUCK YOU
+//             ..:::::::::::'
+//           '::::::::::::'
+//             .::::::::::
+//        '::::::::::::::..
+//             ..::::::::::::.
+//           ``::::::::::::::::
+//            ::::``:::::::::'        .:::.
+//           ::::'   ':::::'       .::::::::.
+//         .::::'      ::::     .:::::::'::::.
+//        .:::'       :::::  .:::::::::' ':::::.
+//       .::'        :::::.:::::::::'      ':::::.
+//      .::'         ::::::::::::::'         ``::::.
+//  ...:::           ::::::::::::'              ``::.
+// ```` ':.          ':::::::::'                  ::::..
+//                    '.:::::'                    ':'````..
+/***********************************************************
+ *                                                         *
+ * You may think you know what the following code does.    *
+ * But you dont. Trust me.                                 *
+ * Fiddle with it, and youll spend many a sleepless        *
+ * night cursing the moment you thought youd be clever     *
+ * enough to "optimize" the code below.                    *
+ * Now close this file and go play with something else.    *
+ *                                                         *
+ ***********************************************************/
 
 public class OkHttpUtils implements IHttp {
-    public final static int CONNECT_TIMEOUT =60;
-    public final static int READ_TIMEOUT=60;
-    public final static int WRITE_TIMEOUT=60;
-    public final static int MAX=10 * 1024 * 1024;
+    public final static int CONNECT_TIMEOUT = 60;
+    public final static int READ_TIMEOUT = 60;
+    public final static int WRITE_TIMEOUT = 60;
+    public final static int MAX = 10 * 1024 * 1024;
     private static final String TAG = "OkHttpUtils";
+    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
     private OkHttpClient okHttpClient;
+
     //构造函数私有化
-    private OkHttpUtils(){
+    private OkHttpUtils() {
         okHttpClient = new OkHttpClient.Builder().
-         addNetworkInterceptor(new CacheInterceptor())
-                .readTimeout(READ_TIMEOUT,TimeUnit.SECONDS)//设置读取超时时间
-                .writeTimeout(WRITE_TIMEOUT,TimeUnit.SECONDS)//设置写的超时时间
-                .connectTimeout(CONNECT_TIMEOUT,TimeUnit.SECONDS)//设置连接超时时间
+                addNetworkInterceptor(new CacheInterceptor())
+                .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)//设置读取超时时间
+                .writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)//设置写的超时时间
+                .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)//设置连接超时时间
                 .build();
 
 
@@ -49,10 +79,10 @@ public class OkHttpUtils implements IHttp {
     private static OkHttpUtils okHttpUtils;
 
     //提供一个公共的、静态的、返回值类型是当前本类的对象
-    public static OkHttpUtils getInstance(){
-        if(okHttpUtils == null){
-            synchronized (OkHttpUtils.class){
-                if(okHttpUtils == null)
+    public static OkHttpUtils getInstance() {
+        if (okHttpUtils == null) {
+            synchronized (OkHttpUtils.class) {
+                if (okHttpUtils == null)
                     okHttpUtils = new OkHttpUtils();
             }
         }
@@ -61,34 +91,30 @@ public class OkHttpUtils implements IHttp {
 
     /**
      * 发送get请求
-     * @param url 请求地址
-     * @param params 请求参数
+     *
+     * @param url      请求地址
+     * @param params   请求参数
      * @param callback 回调
-     * @param <T> 请求回来的数据对应的JavaBean
+     * @param <T>      请求回来的数据对应的JavaBean
      */
     @Override
-    public <T> void get(String url, Map<String, String> params, final MyNetWorkCallback<T> callback) {
+    public <T> void get(String url, Map<String, String> params, final LetinNetWorkCallback<T> callback) {
 
-       final StringBuffer sb = new StringBuffer(url);
-        if(params != null && params.size() > 0){
+        final StringBuffer sb = new StringBuffer(url);
+        if (params != null && params.size() > 0) {
             sb.append("?");
             Set<String> keys = params.keySet();
             for (String key : keys) {
                 String value = params.get(key);
                 sb.append(key).append("=").append(value).append("&");
             }
-            url = sb.deleteCharAt(sb.length()-1).toString();
+            url = sb.deleteCharAt(sb.length() - 1).toString();
 
 
         }
-//        //设置缓存时间为60秒
-//        CacheControl cacheControl = new CacheControl.Builder()
-//                .maxAge(99999, TimeUnit.SECONDS)
-//                .build();
 
         final Request request = new Request.Builder()
                 .url(url).build();
-
 
 
         okHttpClient.newCall(request).enqueue(new Callback() {
@@ -100,7 +126,7 @@ public class OkHttpUtils implements IHttp {
                     public void run() {
                         //执行在主线程
 
-                        callback.onError(404,e.getMessage().toString());
+                        callback.onError(404, e.getMessage().toString());
                     }
                 });
 
@@ -115,8 +141,8 @@ public class OkHttpUtils implements IHttp {
                     @Override
                     public void run() {
                         //执行在主线程
-                        Log.e(TAG, "onResponse: "+jsonData);
-                        callback.onSuccess(getGeneric(jsonData,callback));
+                        Log.e(TAG, "onResponse: " + jsonData);
+                        callback.onSuccess(getGeneric(jsonData, callback));
                     }
                 });
 
@@ -126,14 +152,14 @@ public class OkHttpUtils implements IHttp {
     }
 
     @Override
-    public <T> void post(String url, Map<String, String> params, final MyNetWorkCallback<T> callback) {
+    public <T> void post(String url, Map<String, String> params, final LetinNetWorkCallback<T> callback) {
 
         FormBody.Builder builder = new FormBody.Builder();
-        if(params !=null && params.size() > 0){
+        if (params != null && params.size() > 0) {
             Set<String> keys = params.keySet();
             for (String key : keys) {
                 String value = params.get(key);
-                builder.add(key,value);
+                builder.add(key, value);
             }
         }
 
@@ -145,7 +171,7 @@ public class OkHttpUtils implements IHttp {
                     @Override
                     public void run() {
                         //执行在主线程
-                        callback.onError(404,e.getMessage().toString());
+                        callback.onError(404, e.getMessage().toString());
                     }
                 });
 
@@ -157,11 +183,11 @@ public class OkHttpUtils implements IHttp {
 
 
                 //执行在子线程中
-               APP.mContext.runOnUiThread(new Runnable() {
+                APP.mContext.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         //执行在主线程
-                        callback.onSuccess(getGeneric(jsonData,callback));
+                        callback.onSuccess(getGeneric(jsonData, callback));
                     }
                 });
 
@@ -169,39 +195,69 @@ public class OkHttpUtils implements IHttp {
         });
     }
 
+
+    /**
+     * @param url      请求地址
+     * @param json     请求数据
+     * @param callback 结果回调
+     * @param <T>      泛型
+     */
     @Override
-    public void upload() {
+    public <T> void postJson(String url, String json, final LetinNetWorkCallback<T> callback) {
 
-    }
+        RequestBody body = RequestBody.create(JSON, json);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, final IOException e) {
+                APP.mContext.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onError(404, e.getMessage());
+                    }
+                });
 
-    @Override
-    public void download() {
+            }
 
-    }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String json = response.body().string();
 
-    @Override
-    public void loadImage() {
+                APP.mContext.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onSucces(json);
+                    }
+                });
+
+            }
+        });
+
 
     }
 
     /**
      * 自动解析json至回调中的JavaBean
+     *
      * @param jsonData
      * @param callBack
      * @param <T>
      * @return
      */
-    private <T> T getGeneric(String jsonData,MyNetWorkCallback<T> callBack){
+    private <T> T getGeneric(String jsonData, LetinNetWorkCallback<T> callBack) {
         Gson gson = new Gson();
 
 
-            //通过反射获取泛型的实例
-        Log.e(TAG, "getGeneric: "+jsonData);
-            Type[] types = callBack.getClass().getGenericInterfaces();
-            Type[] actualTypeArguments = ((ParameterizedType) types[0]).getActualTypeArguments();
-            Type type = actualTypeArguments[0];
-            T t = gson.fromJson(jsonData,type);
-            return t;
+        //通过反射获取泛型的实例
+        Log.e(TAG, "getGeneric: " + jsonData);
+        Type[] types = callBack.getClass().getGenericInterfaces();
+        Type[] actualTypeArguments = ((ParameterizedType) types[0]).getActualTypeArguments();
+        Type type = actualTypeArguments[0];
+        T t = gson.fromJson(jsonData, type);
+        return t;
 
 
     }

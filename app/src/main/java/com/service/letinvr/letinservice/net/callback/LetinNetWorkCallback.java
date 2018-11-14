@@ -1,13 +1,4 @@
-package com.service.letinvr.letinservice.net;
-
-
-
-
-
-import com.service.letinvr.letinservice.net.callback.LetinNetWorkCallback;
-
-import java.util.Map;
-
+package com.service.letinvr.letinservice.net.callback;
 
 
 //
@@ -29,6 +20,7 @@ import java.util.Map;
 //  ...:::           ::::::::::::'              ``::.
 // ```` ':.          ':::::::::'                  ::::..
 //                    '.:::::'                    ':'````..
+
 /***********************************************************
  *                                                         *
  * You may think you know what the following code does.    *
@@ -38,12 +30,10 @@ import java.util.Map;
  * enough to "optimize" the code below.                    *
  * Now close this file and go play with something else.    *
  *                                                         *
+ *              2018/11/14 9:07                           *
  ***********************************************************/
-
-public interface IHttp {
-    <T> void get(String url, Map<String, String> params, LetinNetWorkCallback<T> callback);
-    <T> void post(String url, Map<String, String> params, LetinNetWorkCallback<T> callback);
-    <T> void postJson(String url,String json,LetinNetWorkCallback<T> callback);
-
-
+public interface LetinNetWorkCallback<T> {
+    void onSuccess(T t);
+    void onSucces(String str);
+    void onError(int errorCode, String errorMsg);
 }
