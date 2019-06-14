@@ -4,35 +4,30 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.service.letinvr.letinservice.service.ServiceOne;
-import com.service.letinvr.letinservice.service.ServiceTwo;
-import com.service.letinvr.letinservice.utlis.SLog;
+import com.service.letinvr.letinservice.api.API;
+import com.service.letinvr.letinservice.service.LetinServer;
+import com.service.letinvr.letinservice.service.LetinServers;
+import com.service.letinvr.letinservice.utlis.LogToFile;
 
 
 public class ServiceBroadcastReceiver extends BroadcastReceiver {
-
-
-
-    private static final String ACTION = "android.intent.action.BOOT_COMPLETED";//开机广播
-    private static final String  NOISY_ACTION= "android.media.AUDIO_BECOMING_NOISY";//开机声音
-    private static final String packName = "com.service.letinvr.letinservice"; //包名
 
     @Override
     public void onReceive(Context context, Intent intent) {
 
         String action = intent.getAction();//获取开机action
-        SLog.e("action："+action);
+        LogToFile.e("Srz_    --->   "+action);
+        if (action.equals(API.ACTION_BOOT_COMPLETED)||action.equals(API.ACTION_AUDIO_BECOMING_NOISY)
+                /*||action.equals(Intent.ACTION_SCREEN_ON)||action.equals(Intent.ACTION_USER_PRESENT)*/){
 
-
-
-        if (action.equals(ACTION)||action.equals(NOISY_ACTION)){
-            Intent i = context.getPackageManager().getLaunchIntentForPackage(packName);
+            Intent i = context.getPackageManager().getLaunchIntentForPackage(API.ACTION_SERVER_PACK_NAME);
             if (i != null) {
-                Intent intent1 = new Intent(context, ServiceOne.class);
+                Intent intent1 = new Intent(context, LetinServer.class);
                 context.startService(intent1);
-                Intent intent2 =new Intent(context, ServiceTwo.class);
+                Intent intent2 =new Intent(context, LetinServers.class);
                 context.startService(intent2);
-                SLog.e("启动-----服务");
+                LogToFile.e("启动-----服务");
+
             }
         }
 

@@ -5,19 +5,32 @@ android {
     defaultConfig {
         applicationId "com.service.letinvr.letinservice"
         minSdkVersion 16
-        targetSdkVersion 26
-        versionCode 20181024
-        versionName "1.0.0"
+        targetSdkVersion 25
+        versionCode 190523
+        versionName "1.2.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            android.applicationVariants.all { variant ->
+                variant.outputs.all { output ->
+                    def outputFile = output.outputFile
+                    if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                        //这里和多渠道打包没有任何关系
+                        outputFileName = "FJCMCCServer_V" + variant.versionName + "-" + new Date().format("yyyyMMddHHmm") + ".apk"
+                    }
+                }
+            }
         }
     }
 }
-
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:26.1.0'
@@ -25,12 +38,13 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    androidTestCompile('com.android.support:support-annotations:26.1.0') {
-        force = true
-    }
-    //    implementation files('libs/Launcher.jar')
     implementation 'com.readystatesoftware.systembartint:systembartint:1.0.3'
     implementation 'com.squareup.okhttp3:okhttp:3.8.1'
     implementation 'com.squareup.okio:okio:1.13.0'
-    implementation 'com.google.code.gson:gson:2.8.1'
+    implementation(name: 'sdk-xmpp-release', ext: 'aar')
+    androidTestCompile('com.android.support:support-annotations:26.1.0') {
+        force = true
+    }
+    implementation 'com.google.code.gson:gson:2.8.5'
+
 }

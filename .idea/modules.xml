@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/LetinService.iml" filepath="$PROJECT_DIR$/LetinService.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/servicemoudle/servicemoudle.iml" filepath="$PROJECT_DIR$/servicemoudle/servicemoudle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/fj_cmcc_library/fj_cmcc_library.iml" filepath="$PROJECT_DIR$/fj_cmcc_library/fj_cmcc_library.iml" />
     </modules>
   </component>
 </project>

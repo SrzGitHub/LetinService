@@ -3,7 +3,8 @@ package com.service.letinvr.letinservice.app;
 import android.app.Application;
 import android.content.Context;
 
-import com.service.letinvr.letinservice.ui.MainActivity;
+import com.service.letinvr.letinservice.api.Constant;
+import com.service.letinvr.letinservice.base.BaseActivity;
 
 /**
  * 站在顶峰,看世界
@@ -12,17 +13,18 @@ import com.service.letinvr.letinservice.ui.MainActivity;
  **/
 public class APP extends Application {
 
-    public static MainActivity mContext;
     public static Context context;
+
+    public static BaseActivity activity;
 
     @Override
     public void onCreate() {
         super.onCreate();
-
+        context =getApplicationContext();
     }
 
     public static Context getContext(){
-
         return context;
     }
+
 }

@@ -1,12 +1,4 @@
-package com.service.letinvr.letinservice.net;
-
-
-
-
-
-import com.service.letinvr.letinservice.net.callback.LetinCallback;
-
-import java.util.Map;
+package com.service.letinvr.letinservice.contract;
 
 
 //
@@ -28,6 +20,10 @@ import java.util.Map;
 //  ...:::           ::::::::::::'              ``::.
 // ```` ':.          ':::::::::'                  ::::..
 //                    '.:::::'                    ':'````..
+
+import com.service.letinvr.letinservice.base.BasePresenter;
+import com.service.letinvr.letinservice.base.BaseView;
+
 /***********************************************************
  *                                                         *
  * You may think you know what the following code does.    *
@@ -37,11 +33,16 @@ import java.util.Map;
  * enough to "optimize" the code below.                    *
  * Now close this file and go play with something else.    *
  *                                                         *
+ *              2018/11/22 15:52                           *
  ***********************************************************/
 
-public interface IHttp {
-        void postDate(String url, String json, String strHand , int index, LetinCallback callback);
+public interface LetinContract {
+    interface View extends BaseView<LetinContract.Presenter> {
+        void setResult(String result,int index);
+        void showMessage(String error,int index);
+    }
 
-        void postEPG(String url, Map<String,String> mMap,String cookie,int index,LetinCallback callback);
+    interface Presenter extends BasePresenter {
 
+    }
 }

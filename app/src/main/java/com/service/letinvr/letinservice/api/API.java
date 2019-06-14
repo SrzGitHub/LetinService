@@ -8,40 +8,30 @@ package com.service.letinvr.letinservice.api;
 public class API {
 
 
-    public static final String MESSAGE_ACTION = "com.service.MAIN_SERVICE_ACTION";
 
-    //VR 应用接收的广播    LetinService广播监听 action
-    public static final String RECEIVER_RADIO = "com.ShangHaiCT.LetinVR.ReceiveMessage";
-    //VR 应用发送广播     VR应用广播监听action
-    public static final String SEND_BROADCAST = "com.ShangHaiCT.LetinVR.SendMessage.LetinService";
 
     /**
-     * 兰亭应用包名:
-     * Launcher播放器:
-     * 直播现场:
-     * 全景视频:
-     * 巨幕影院:
-     * VR教育:
+     * 注意:机顶盒广播action为com.picovr.lanting.message
+     * VR一体机发送广播action为com.picovr.xmpp.vr.business
+     * VR一体机接收广播action为com.picovr.xmpp.vr.business.send
      */
-    //  Launcher播放器
-    public static final String LAUNCHER_PLAYER = "com.shct.vrVideoPlayer";
-    //  直播现场
-    public static final String LIVE_STREAMING = "com.shct.LiveStreaming";
-    //  全景视频
-    public static final String DEMAND_SYSTEM = "com.shct.DemandSystem";
-    //  巨幕影院
-    public static final String BIG_SCTREN = "com.shct.BigScreen";
-    //  VR教育
-    public static final String EDUCATTION_SYSTEM = "com.shct.EducationSystem";
+    public static final String ACTION_LETIN_MESSAGE ="com.picovr.lanting.message";
+    public static final String ACTION_XMPP_VR_BUSINESS ="com.picovr.xmpp.vr.business";
+    public static final String ACTION_XMPP_VR_BUSINESS_SEND ="com.picovr.xmpp.vr.business.send";
+
+    /**
+     * 向其他应用发送广播
+     * 接收其他应用广播
+     */
+    public static final String ACTION_SERVER_MESSAGE="com.letinvr.send.message";
+    public static final String ACTION_SERVER_MESSAGE_SEND ="com.letinvr.send.message.send";
 
 
-    public static final String MESSAGER = "messager";//消息
+    public static final String SERVICE_TWO ="com.service.letinvr.letinservice.service.LetinServers";
+    public static final String SERVICE_ONE ="com.service.letinvr.letinservice.service.LetinServer";
 
-    public static final String JSON = "json";//json
-
-    public static final String DATE = "date";//数据
-    public static final String HTTP = "http";//执行网络请求
-    public static final String URL = "url";//请求地址
-
+    public static final String ACTION_BOOT_COMPLETED = "android.intent.action.BOOT_COMPLETED";//开机广播
+    public static final String  ACTION_AUDIO_BECOMING_NOISY= "android.media.AUDIO_BECOMING_NOISY";//开机声音
+    public static final String ACTION_SERVER_PACK_NAME = "com.service.letinvr.letinservice"; //包名
 
 }

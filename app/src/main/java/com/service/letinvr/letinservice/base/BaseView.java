@@ -1,13 +1,4 @@
-package com.service.letinvr.letinservice.net;
-
-
-
-
-
-import com.service.letinvr.letinservice.net.callback.LetinCallback;
-
-import java.util.Map;
-
+package com.service.letinvr.letinservice.base;
 
 //
 //                    .::::.
@@ -38,10 +29,7 @@ import java.util.Map;
  * Now close this file and go play with something else.    *
  *                                                         *
  ***********************************************************/
+public interface BaseView<T> {
 
-public interface IHttp {
-        void postDate(String url, String json, String strHand , int index, LetinCallback callback);
-
-        void postEPG(String url, Map<String,String> mMap,String cookie,int index,LetinCallback callback);
-
+    void setPresenter(T t);
 }

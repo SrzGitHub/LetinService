@@ -1,13 +1,4 @@
-package com.service.letinvr.letinservice.net;
-
-
-
-
-
-import com.service.letinvr.letinservice.net.callback.LetinCallback;
-
-import java.util.Map;
-
+package com.service.letinvr.letinservice.base;
 
 //
 //                    .::::.
@@ -28,6 +19,11 @@ import java.util.Map;
 //  ...:::           ::::::::::::'              ``::.
 // ```` ':.          ':::::::::'                  ::::..
 //                    '.:::::'                    ':'````..
+
+import android.app.Activity;
+
+import java.util.Map;
+
 /***********************************************************
  *                                                         *
  * You may think you know what the following code does.    *
@@ -39,9 +35,7 @@ import java.util.Map;
  *                                                         *
  ***********************************************************/
 
-public interface IHttp {
-        void postDate(String url, String json, String strHand , int index, LetinCallback callback);
-
-        void postEPG(String url, Map<String,String> mMap,String cookie,int index,LetinCallback callback);
-
+public interface BasePresenter {
+    void start(final String url, final String postJson, final String cookie,int index);
+    void start(final String url, final Map<String,String> mMap, final String cookie, int index);
 }

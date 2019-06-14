@@ -1,13 +1,8 @@
-package com.service.letinvr.letinservice.net;
+package com.service.letinvr.letinservice.base;
 
 
-
-
-
-import com.service.letinvr.letinservice.net.callback.LetinCallback;
-
-import java.util.Map;
-
+import com.service.letinvr.letinservice.net.HttpFactroy;
+import com.service.letinvr.letinservice.net.IHttp;
 
 //
 //                    .::::.
@@ -39,9 +34,6 @@ import java.util.Map;
  *                                                         *
  ***********************************************************/
 
-public interface IHttp {
-        void postDate(String url, String json, String strHand , int index, LetinCallback callback);
-
-        void postEPG(String url, Map<String,String> mMap,String cookie,int index,LetinCallback callback);
-
+public interface BaseModel {
+    public static IHttp iHttp = HttpFactroy.create();
 }

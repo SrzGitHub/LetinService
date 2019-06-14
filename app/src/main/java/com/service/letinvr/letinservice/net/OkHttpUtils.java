@@ -1,23 +1,29 @@
 package com.service.letinvr.letinservice.net;
 
 
-import android.util.Log;
+import com.service.letinvr.letinservice.net.callback.LetinCallback;
 
-import com.google.gson.Gson;
-import com.service.letinvr.letinservice.app.APP;
-import com.service.letinvr.letinservice.net.callback.LetinNetWorkCallback;
 
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
-import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -43,6 +49,7 @@ import okhttp3.Response;
 //  ...:::           ::::::::::::'              ``::.
 // ```` ':.          ':::::::::'                  ::::..
 //                    '.:::::'                    ':'````..
+
 /***********************************************************
  *                                                         *
  * You may think you know what the following code does.    *
@@ -55,24 +62,47 @@ import okhttp3.Response;
  ***********************************************************/
 
 public class OkHttpUtils implements IHttp {
-    public final static int CONNECT_TIMEOUT = 60;
-    public final static int READ_TIMEOUT = 60;
-    public final static int WRITE_TIMEOUT = 60;
-    public final static int MAX = 10 * 1024 * 1024;
-    private static final String TAG = "OkHttpUtils";
-    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
+    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private OkHttpClient okHttpClient;
 
     //构造函数私有化
     private OkHttpUtils() {
-        okHttpClient = new OkHttpClient.Builder().
-                addNetworkInterceptor(new CacheInterceptor())
-                .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)//设置读取超时时间
-                .writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)//设置写的超时时间
-                .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)//设置连接超时时间
-                .build();
 
+
+        TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            }
+
+            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            }
+
+            public X509Certificate[] getAcceptedIssuers() {
+                return new X509Certificate[0];
+            }
+        }};
+        SSLContext sslContext = null;
+
+        try {
+            sslContext = SSLContext.getInstance("SSL");
+            sslContext.init((KeyManager[]) null, trustAllCerts, new SecureRandom());
+        } catch (NoSuchAlgorithmException var4) {
+            var4.printStackTrace();
+        } catch (KeyManagementException var5) {
+            var5.printStackTrace();
+        }
+
+        okHttpClient = new OkHttpClient.Builder()
+                .sslSocketFactory(sslContext.getSocketFactory())
+                .hostnameVerifier(new HostnameVerifier() {
+                    @Override
+                    public boolean verify(String hostname, SSLSession session) {
+                        return true;
+                    }
+                })
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .build();
 
     }
 
@@ -89,197 +119,57 @@ public class OkHttpUtils implements IHttp {
         return okHttpUtils;
     }
 
-    /**
-     * 发送get请求
-     *
-     * @param url      请求地址
-     * @param params   请求参数
-     * @param callback 回调
-     * @param <T>      请求回来的数据对应的JavaBean
-     */
-    @Override
-    public <T> void get(String url, Map<String, String> params, final LetinNetWorkCallback<T> callback) {
-
-        final StringBuffer sb = new StringBuffer(url);
-        if (params != null && params.size() > 0) {
-            sb.append("?");
-            Set<String> keys = params.keySet();
-            for (String key : keys) {
-                String value = params.get(key);
-                sb.append(key).append("=").append(value).append("&");
-            }
-            url = sb.deleteCharAt(sb.length() - 1).toString();
-
-
-        }
-
-        final Request request = new Request.Builder()
-                .url(url).build();
-
-
-        okHttpClient.newCall(request).enqueue(new Callback() {
-
-            @Override
-            public void onFailure(Call call, final IOException e) {
-                APP.mContext.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //执行在主线程
-
-                        callback.onError(404, e.getMessage().toString());
-                    }
-                });
-
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                final String jsonData = response.body().string();
-
-                //执行在子线程中
-                APP.mContext.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //执行在主线程
-                        Log.e(TAG, "onResponse: " + jsonData);
-                        callback.onSuccess(getGeneric(jsonData, callback));
-                    }
-                });
-
-            }
-        });
-
-    }
 
     @Override
-    public <T> void post(String url, Map<String, String> params, final LetinNetWorkCallback<T> callback) {
-
-        FormBody.Builder builder = new FormBody.Builder();
-        if (params != null && params.size() > 0) {
-            Set<String> keys = params.keySet();
-            for (String key : keys) {
-                String value = params.get(key);
-                builder.add(key, value);
-            }
-        }
-
-        Request request = new Request.Builder().url(url).post(builder.build()).build();
-        okHttpClient.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, final IOException e) {
-                APP.mContext.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //执行在主线程
-                        callback.onError(404, e.getMessage().toString());
-                    }
-                });
-
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                final String jsonData = response.body().string();
-
-
-                //执行在子线程中
-                APP.mContext.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //执行在主线程
-                        callback.onSuccess(getGeneric(jsonData, callback));
-                    }
-                });
-
-            }
-        });
-    }
-
-
-    /**
-     * @param url      请求地址
-     * @param json     请求数据
-     * @param callback 结果回调
-     * @param <T>      泛型
-     */
-    @Override
-    public <T> void postJson(String url, String json, final LetinNetWorkCallback<T> callback) {
-
-        RequestBody body = RequestBody.create(JSON, json);
+    public void postDate(String url, String jsonDate, String cookie, final int max, final LetinCallback callback) {
+        RequestBody body = RequestBody.create(JSON, jsonDate);
         Request request = new Request.Builder()
                 .url(url)
+                .header("Cookie", cookie)
                 .post(body)
                 .build();
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, final IOException e) {
-                APP.mContext.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onError(404, e.getMessage());
-                    }
-                });
+                callback.onError(404, e.getMessage(), max);
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                String json = response.body().string();
+                callback.onSuccess(json, max);
+
+            }
+        });
+
+    }
+
+    @Override
+    public void postEPG(String url, Map<String, String> params, String cookie, final int index, final LetinCallback callback) {
+        FormBody.Builder builder = new FormBody.Builder();
+        if(params !=null && params.size() > 0){
+            Set<String> keys = params.keySet();
+            for (String key : keys) {
+                String value = params.get(key);
+                builder.add(key,value);
+            }
+        }
+        Request request = new Request.Builder().url(url).post(builder.build()).build();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, final IOException e) {
+                        //执行在主线程
+                        callback.onError(404,e.getMessage().toString(),index);
 
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                final String json = response.body().string();
-
-                APP.mContext.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onSucces(json);
-                    }
-                });
+                        callback.onSuccess(response.body().string(),index);
 
             }
         });
-
-
     }
 
-    /**
-     * 自动解析json至回调中的JavaBean
-     *
-     * @param jsonData
-     * @param callBack
-     * @param <T>
-     * @return
-     */
-    private <T> T getGeneric(String jsonData, LetinNetWorkCallback<T> callBack) {
-        Gson gson = new Gson();
-
-
-        //通过反射获取泛型的实例
-        Log.e(TAG, "getGeneric: " + jsonData);
-        Type[] types = callBack.getClass().getGenericInterfaces();
-        Type[] actualTypeArguments = ((ParameterizedType) types[0]).getActualTypeArguments();
-        Type type = actualTypeArguments[0];
-        T t = gson.fromJson(jsonData, type);
-        return t;
-
-
-    }
-
-    /**
-     * 缓存拦截器
-     */
-    private static class CacheInterceptor implements Interceptor {
-
-        @Override
-        public Response intercept(Chain chain) throws IOException {
-
-            Request request = chain.request();
-            Response response = chain.proceed(request);
-            Response response1 = response.newBuilder()
-                    .removeHeader("Pragma")
-                    .removeHeader("Cache-Control")
-                    //cache for 30 days
-                    .header("Cache-Control", "max-age=" + 3600 * 24 * 30)
-                    .build();
-            return response1;
-        }
-    }
 
 }

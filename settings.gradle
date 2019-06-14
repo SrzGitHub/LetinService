@@ -1,1 +1,1 @@
-include ':app', ':servicemoudle'
+include ':app', ':fj_cmcc_library'
