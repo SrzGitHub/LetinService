@@ -56,7 +56,7 @@ import com.service.letinvr.letinservice.moudle.hvsdate.HeartBsatReturn;
 import com.service.letinvr.letinservice.moudle.hvsdate.LoginRouteReturn;
 import com.service.letinvr.letinservice.moudle.hvsdate.SessionIDDate;
 import com.service.letinvr.letinservice.presenter.LetinPresenter;
-import com.service.letinvr.letinservice.ui.MainActivity;
+import com.service.letinvr.letinservice.thread.DiscoverGuardThread;
 import com.service.letinvr.letinservice.utlis.AESUtils;
 import com.service.letinvr.letinservice.utlis.LogToFile;
 import com.service.letinvr.letinservice.utlis.MacUtils;
@@ -65,10 +65,7 @@ import com.service.letinvr.letinservice.utlis.SPUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Timer;
-import java.util.TimerTask;
 
-import static com.service.letinvr.letinservice.api.API.SERVICE_TWO;
 import static com.service.letinvr.letinservice.api.PresenterConstant.POST_CODE_101;
 import static com.service.letinvr.letinservice.api.PresenterConstant.POST_CODE_102;
 import static com.service.letinvr.letinservice.api.PresenterConstant.POST_CODE_103;
@@ -187,7 +184,7 @@ public class LetinServer extends Service implements LetinContract.View {
         super.onCreate();
         mPresenter = new LetinPresenter(this);//实例化
         initBroadcast();
-        thread.start();
+        new DiscoverGuardThread().start();
     }
 
 
@@ -216,24 +213,7 @@ public class LetinServer extends Service implements LetinContract.View {
         registerReceiver(netWorkChangReceiver, filter1);
     }
 
-    Thread thread = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            Timer timer = new Timer();
-            TimerTask task = new TimerTask() {
-                @Override
-                public void run() {
-                    boolean b = MainActivity.isServiceWorked(LetinServer.this, SERVICE_TWO);
 
-                    if (!b) {
-                        Intent service = new Intent(LetinServer.this, LetinServers.class);
-                        startService(service);
-                    }
-                }
-            };
-            timer.schedule(task, 0, 3 * 60 * 1000);
-        }
-    });
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -271,6 +251,7 @@ public class LetinServer extends Service implements LetinContract.View {
                     PresenterConstant.putKey(BaseUrl.VSP_URL, touristloginRouteReturn.getVspURL());
                     //写入游客登录状态 调度地址
                     Constant.writeToFile("0", "", touristloginRouteReturn.getVspHttpsURL(), "");
+                    LogToFile.d("Srz  >>> 游客登录\nHTTSP = "+touristloginRouteReturn.getVspHttpsURL()+"\nHTTP = "+touristloginRouteReturn.getVspURL()+"\n");
                     hvsTouristCertification();//游客认证
 
                 }
@@ -281,6 +262,7 @@ public class LetinServer extends Service implements LetinContract.View {
                     PresenterConstant.putKey(Constant.JSESSIONID, touristsessionIDDate.getJSessionID());
                     //写入游客认证状态 游客seesion  游客调度接口
                     PresenterConstant.putKey("loginKey", touristsessionIDDate.getSubnetID());
+                    LogToFile.d("Srz  >>> 游客认证\nHTTSP = "+PresenterConstant.getKey(BaseUrl.VSP_HTTPS_URL)+"\nID = "+ touristsessionIDDate.getJSessionID());
                     Constant.writeToFile("0", touristsessionIDDate.getJSessionID(), PresenterConstant.getKey(BaseUrl.VSP_HTTPS_URL), "");
 //                  //启动游客心跳线程
                     mHandler.post(HVSHeartbeatThread);
@@ -456,6 +438,7 @@ public class LetinServer extends Service implements LetinContract.View {
                 break;
             case POST_CODE_111://HVS退出结果
                 //退出HVS时要调用游客登录
+
                 sendUnityMsg(LetinServer.this, "HVSLoginOut|true");
 
                 break;
@@ -559,15 +542,17 @@ public class LetinServer extends Service implements LetinContract.View {
         //解除绑定
         String unbindJson = TranformJson.unbind();
         mPresenter.start(BaseUrl.UNBIND_AUTHORIZATION_REL, unbindJson, "", POST_CODE_107);
+
         hvsLogOut();//退出HVS 并登录游客
+
         mHandler.removeCallbacks(mRunnable);
         mHandler.removeCallbacks(CodeThread);
         mHandler.removeCallbacks(HVSHeartbeatThread);
         Intervals = 0;
         //占位行  退出EPG
         closeXMPPConnect();
-        SPUtils.clear(LetinServer.this);//清除本地缓存
-        hvsTouristLogin();//游客登录
+
+
 
 
     }
@@ -625,6 +610,7 @@ public class LetinServer extends Service implements LetinContract.View {
             String postJosn = "{\"type\":1,\"physicalDeviceId\":\"" + key + Constant.getMAC() + "\"}";
             LogToFile.e("Srz_  退出用户登录  --->   " + postJosn);
             mPresenter.start(PresenterConstant.getKey(BaseUrl.VSP_HTTPS_URL) + BaseUrl.VSP_V3_LOGOUT, postJosn, "", POST_CODE_111);
+            hvsTouristLogin();//游客登录
         }
 
     }

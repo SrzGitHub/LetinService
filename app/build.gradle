@@ -5,7 +5,7 @@ android {
     defaultConfig {
         applicationId "com.service.letinvr.letinservice"
         minSdkVersion 16
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 190523
         versionName "1.2.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
