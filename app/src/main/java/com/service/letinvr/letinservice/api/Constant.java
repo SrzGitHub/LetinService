@@ -169,9 +169,6 @@ public class Constant {
      * @param errCode
      */
 
-    /**
-     * HVS
-     */
     public static final String APP_BIND_STATE = "APP_BIND_STATE=";
     public static final String JSESSIONID = "JSESSIONID=";
     public static final String HVS_ADDRESS = "HVS_ADDRESS=";
